@@ -39,7 +39,7 @@
         (name "PROFILE")
         (event-type "Event")
         (identifier ?instance)
-        (message$ "SQL: " ?sql " duration: " ?duration_ns " fullscan: " ?fullscan " sort: " ?sort " autoindex: " ?autoindex " vm_step: " ?vm_step " run: " ?run_count)
+        (message$ "SQL: " ?sql " duration: " ?duration_ns&~0 " fullscan: " ?fullscan " sort: " ?sort " autoindex: " ?autoindex " vm_step: " ?vm_step " run: " ?run_count)
     )
     =>
     (bind ?calculated-start (- ?t ?duration_ns))
