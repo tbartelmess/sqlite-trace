@@ -57,4 +57,4 @@ In this case, your query was not covered an index and SQLite needed to read trou
 #### Query `SELECT ...` performed an in memory sort.
 
 [image-1]:	docs/install-in-instruments.png
-[image-2]:	query-performance.png
+[image-2]:	docs/query-performance.png
