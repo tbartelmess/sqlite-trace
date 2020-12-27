@@ -13,10 +13,7 @@
 static os_log_t logger;
 typedef struct {
     os_signpost_id_t signpost_id;
-    dispatch_queue_t polling_queue;
-    dispatch_source_t polling_timer;
     char* name;
-    int last_txn_state;
 } sqlite_trace_context_t;
 
 static void configure_logger() {
@@ -85,23 +82,7 @@ void sqlite_trace_configure(sqlite3* db, const char* name) {
     if (os_signpost_enabled(logger)) {
 
         sqlite_trace_context_t* context = malloc(sizeof(sqlite_trace_context_t));
-        context->last_txn_state = sqlite3_txn_state(db, NULL);
-        context->polling_queue = dispatch_queue_create("io.bartelmess.sqltrace.polling", DISPATCH_QUEUE_SERIAL);
-        context->polling_timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, context->polling_queue);
-        dispatch_source_set_timer(context->polling_timer, DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC, 0.05 * NSEC_PER_SEC);
-        dispatch_source_set_event_handler(context->polling_timer, ^{
-            int db_state = sqlite3_txn_state(db, NULL);
-            if (db_state != context->last_txn_state) {
-                context->signpost_id = os_signpost_id_generate(logger);
-                os_signpost_event_emit(logger, context->signpost_id,
-                                       "TXN STATE",
-                                       "database-state %{public}d",
-                                       db_state);
-                context->last_txn_state = db_state;
-            }
 
-        });
-        dispatch_resume(context->polling_timer);
         sqlite3_trace_v2(db, (SQLITE_TRACE_STMT| SQLITE_TRACE_PROFILE|SQLITE_TRACE_CLOSE), sqlite_trace_callback, context);
     } else {
 
