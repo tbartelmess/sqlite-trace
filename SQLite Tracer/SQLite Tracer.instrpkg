@@ -59,6 +59,13 @@
             <title>Query Execution Count</title>
             <type>event-count</type>
         </column>
+
+        <!-- Generate an event-concept for long running queries -->
+        <column>
+            <mnemonic>exec-time-impact</mnemonic>
+            <title>Execution Time Impact</title>
+            <type>event-concept</type>
+        </column>
         
     </interval-schema>
     <point-schema>
@@ -128,7 +135,7 @@
     </modeler>
     <instrument>
         <id>io.bartelmess.sqlite-tracing</id>
-        <title>SQLite Tracer</title>
+        <title>SQLite Tracer 2</title>
         <category>Behavior</category>
         <purpose>Shows SQLite Trace  Results</purpose>
         <icon>Generic</icon>
@@ -151,6 +158,7 @@
 
                 <plot>
                     <value-from>query</value-from>
+                    <color-from>exec-time-impact</color-from>
                 </plot>
             </lane>
         </graph>
@@ -161,11 +169,7 @@
             <column>duration</column>
             <column>query</column>
             <column>start</column>
-            <column>fullscan</column>
-            <column>sort</column>
-            <column>autoindex</column>
-            <column>vm-step</column>
-            <column>run-count</column>
+            <column>exec-time-impact</column>
         </list>
         <narrative>
             <title>Narrative</title>

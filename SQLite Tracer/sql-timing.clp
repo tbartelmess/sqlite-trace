@@ -19,7 +19,6 @@
     (slot autoindex (type INTEGER))
     (slot vm_step (type INTEGER))
     (slot run_count (type INTEGER))
-
 )
 
 ;;; There is not much we know about the query when the query starts,
@@ -69,7 +68,10 @@
                (vm_step ?vm_step)
                (run_count ?run_count)
     )
+    
     =>
+    (bind ?exec-time-impact (if (< ?duration_ns 10000000) then "Low" else (if (> ?duration_ns 20000000) then "High" else "Moderate")))
+
     (create-new-row ?output)
     (set-column start ?start)
     (set-column duration ?duration_ns)
@@ -79,4 +81,5 @@
     (set-column autoindex ?autoindex)
     (set-column vm-step ?vm_step)
     (set-column run-count ?run_count)
+    (set-column exec-time-impact ?exec-time-impact)
 )
