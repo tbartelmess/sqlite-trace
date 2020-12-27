@@ -14,23 +14,25 @@ Currently, the profiler assumes that all connections are for the same database. 
 
 The profiling hook is only enabled when attached to instruments.
 
-	#import <sqlite3.h>
-	#import <sqlite-trace.h>
-	
-	@interface MyDatabaseWrapper : NSObject
-	@property (nonatomic, readwrite) sqlite3* db;
-	@end
-	
-	
-	....
-	- (void)setupDatabaseConnection {
-	    
-	    if (sqlite3_open_v2(....) == SQLITE_OK) { 
-	    sqlite_trace_configure(self.db);
-	    }
-	}
-	....
-	
+```objc
+#import <sqlite3.h>
+#import <sqlite-trace.h>
+
+@interface MyDatabaseWrapper : NSObject
+@property (nonatomic, readwrite) sqlite3* db;
+@end
+
+
+....
+- (void)setupDatabaseConnection {
+    
+    if (sqlite3_open_v2(....) == SQLITE_OK) { 
+    sqlite_trace_configure(self.db);
+    }
+}
+....
+
+```
 
 ## SQLite Best Practices
 
