@@ -7,11 +7,16 @@
 	</owner>
 
     <import-schema>os-signpost</import-schema>
-
+    <import-schema>time-profile</import-schema>
     <interval-schema>
         <id>sqlite-query-execution</id>
         <title>SQLite Query Execution</title>
-
+        <attribute>
+            <name>target-pid</name>
+            <required>true</required>
+            <note>Single/Multi-process</note>
+            <value-pattern>ALL|[0-9]+</value-pattern>
+        </attribute>
         <start-column>
             <mnemonic>start</mnemonic>
             <title>Start</title>
@@ -66,6 +71,14 @@
             <title>Execution Time Impact</title>
             <type>event-concept</type>
         </column>
+
+        <column>
+            <mnemonic>backtrace</mnemonic>
+            <title>Backtrace</title>
+            <type>backtrace</type>
+        </column>
+
+        
         
     </interval-schema>
     <point-schema>
@@ -100,8 +113,18 @@
             <rule-path>sql-timing.clp</rule-path>
         </production-system>
 
+        <instance-parameter>?target-pid</instance-parameter>
+
         <output>
             <schema-ref>sqlite-query-execution</schema-ref>
+
+
+            <when>
+                <attribute>
+                    <name>target-pid</name>
+                    <binds-parameter>?target-pid</binds-parameter>
+                </attribute>
+             </when>
             <required-input>
                 <schema-ref>os-signpost</schema-ref>
                 <attribute>
@@ -113,42 +136,63 @@
                     <string>io.bartelmess.sqlite-trace</string>
                 </attribute>
             </required-input>
-        </output>
-    </modeler>
 
-   <modeler>
-        <id>io.bartelmess.sqlite-trace.anitpatterns</id>
-        <title>Anti Patterns Modeler</title>
-        <purpose>Attempts to identify Antipatterns in SQLite usage</purpose>
-
-        <production-system>
-            <rule-path>duplicate-query.clp</rule-path>
-            <rule-path>query-sort.clp</rule-path>
-        </production-system>
-
-        <output>
-            <schema-ref>sqlite-narrative</schema-ref>
             <required-input>
-                <schema-ref>sqlite-query-execution</schema-ref>
+                <schema-ref>time-profile</schema-ref>
+                <!-- The ?target-pid instance parameter was bound to the mobile-agent-activity-with-time-samples
+                     target-pid attribute. Since it now has a value, it can be used to define the required
+                     attribute on time-profile which will determine its sampling behavior.
+                 -->
+                <attribute> <name>target-pid</name> <expression>?target-pid</expression> </attribute>
+                <!-- The following attributes on time-profile are set as:
+                       - Enable high-frequency-sampling
+                       - Disable kernel callstacks
+                       - Enable recording data for waiting/idle threads
+
+                       For more information on which attributes a schema requires, please see
+                       the Instruments Inspector and navigate to the "Schemas" tab.
+                 -->
+                <attribute> <name>high-frequency-sampling</name> <expression>1</expression> </attribute>
+                <attribute> <name>needs-kernel-callstack</name> <expression>0</expression> </attribute>
+                <attribute> <name>record-waiting-threads</name> <expression>1</expression> </attribute>
             </required-input>
         </output>
     </modeler>
+
+<!--   <modeler>-->
+<!--        <id>io.bartelmess.sqlite-trace.anitpatterns</id>-->
+<!--        <title>Anti Patterns Modeler</title>-->
+<!--        <purpose>Attempts to identify Antipatterns in SQLite usage</purpose>-->
+<!---->
+<!--        <production-system>-->
+<!--            <rule-path>duplicate-query.clp</rule-path>-->
+<!--            <rule-path>query-sort.clp</rule-path>-->
+<!--        </production-system>-->
+<!---->
+<!--        <output>-->
+<!--            <schema-ref>sqlite-narrative</schema-ref>-->
+<!--            <required-input>-->
+<!--                <schema-ref>sqlite-query-execution</schema-ref>-->
+<!--            </required-input>-->
+<!--        </output>-->
+<!--    </modeler>-->
     <instrument>
         <id>io.bartelmess.sqlite-tracing</id>
         <title>SQLite Tracer 2</title>
         <category>Behavior</category>
         <purpose>Shows SQLite Trace  Results</purpose>
         <icon>Generic</icon>
-
+        <import-parameter> <from-scope>trace</from-scope> <name>?target-pid</name> </import-parameter>
         <create-table>
             <id>queries</id>
             <schema-ref>sqlite-query-execution</schema-ref>
+            <attribute> <name>target-pid</name> <parameter-ref>?target-pid</parameter-ref> </attribute>
         </create-table>
 
-        <create-table>
-            <id>narrative</id>
-            <schema-ref>sqlite-narrative</schema-ref>
-        </create-table>
+<!--        <create-table>-->
+<!--            <id>narrative</id>-->
+<!--            <schema-ref>sqlite-narrative</schema-ref>-->
+<!--        </create-table>-->
 
         <graph>
             <title>Queries</title>
@@ -170,11 +214,12 @@
             <column>query</column>
             <column>start</column>
             <column>exec-time-impact</column>
+            <column>backtrace</column>
         </list>
-        <narrative>
-            <title>Narrative</title>
-            <table-ref>narrative</table-ref>
-            <narrative-column>description</narrative-column>
-        </narrative>
+<!--        <narrative>-->
+<!--            <title>Narrative</title>-->
+<!--            <table-ref>narrative</table-ref>-->
+<!--            <narrative-column>description</narrative-column>-->
+<!--        </narrative>-->
     </instrument>
 </package>
