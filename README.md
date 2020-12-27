@@ -44,8 +44,11 @@ The best starting point is the “SQLite Query Timing” instrument. It shows al
 
 Queries are colour coded by their duration.
 
-Queries are considered “good”/“fast” when they take less than 10ms to execute and appear green.
+Queries are considered “good”/“fast” when they take less than 10ms to execute and appear green. When they between 10ms and 20ms it appears as yellow in the timeline.
+Any query that takes longer than 20ms will appear red. Ideally you should not have any of those queries on the main thread. For some background operations this can be fine.
 ![Example of the query performance instrument][image-2]
+
+This instrument doesn’t tell you lot about what is going on any why queries are slow, but it’s a good starting point if you are looking for a general overview.
 
 
 ### Indexes
